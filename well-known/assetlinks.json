@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.CraftX.LiquorStockManager",
+    "sha256_cert_fingerprints": [
+      "CB:1F:79:9A:01:8B:09:07:49:48:08:BE:39:3C:09:75:BE:97:85:5E:E9:73:21:5A:1E:FE:C8:0B:FB:50:E2:33"
+    ]
+  }
+}]
