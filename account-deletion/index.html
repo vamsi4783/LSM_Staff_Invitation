@@ -1,0 +1,324 @@
+<title>LSM Account Deletion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;600&display=swap">
+
+<style>
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --fg: #1a1918;
+    --fg-muted: #565450;
+    --fg-light: #908c88;
+    --accent: #7c2d12;
+    --accent-soft: #fdf2ee;
+    --accent-hover: #6b2410;
+    --border: #e6e3de;
+    --warn-bg: #fffbeb;
+    --warn-fg: #92400e;
+    --warn-border: #fde68a;
+    --step-bg: #f4f2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131210;
+      --surface: #1e1c1a;
+      --fg: #f0ede8;
+      --fg-muted: #a09c96;
+      --fg-light: #68645e;
+      --accent: #e07a56;
+      --accent-soft: #2a1810;
+      --accent-hover: #c86a46;
+      --border: #2e2b26;
+      --warn-bg: #1c1507;
+      --warn-fg: #fcd34d;
+      --warn-border: #78350f;
+      --step-bg: #232119;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131210; --surface: #1e1c1a; --fg: #f0ede8; --fg-muted: #a09c96;
+    --fg-light: #68645e; --accent: #e07a56; --accent-soft: #2a1810;
+    --accent-hover: #c86a46; --border: #2e2b26; --warn-bg: #1c1507;
+    --warn-fg: #fcd34d; --warn-border: #78350f; --step-bg: #232119;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    margin: 0;
+    padding-inline: max(16px, env(safe-area-inset-left, 0px));
+    padding-block: max(32px, env(safe-area-inset-top, 0px)) max(56px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .doc { max-width: 640px; margin-inline: auto; }
+
+  /* App identity */
+  .app-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-block-end: 28px;
+  }
+  .app-icon {
+    width: 48px; height: 48px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .app-identity-text {}
+  .app-name { font-size: 15px; font-weight: 700; color: var(--fg); line-height: 1.2; }
+  .app-dev  { font-size: 12px; color: var(--fg-light); margin-top: 2px; }
+
+  h1 {
+    font-family: 'Lora', Georgia, serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 600;
+    color: var(--fg);
+    margin: 0 0 10px;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .lead {
+    font-size: 15px;
+    color: var(--fg-muted);
+    margin: 0 0 32px;
+    line-height: 1.6;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin-block: 32px;
+  }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--fg);
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  p { color: var(--fg-muted); margin: 0 0 14px; }
+  p:last-child { margin-block-end: 0; }
+
+  ul {
+    color: var(--fg-muted);
+    padding-inline-start: 20px;
+    margin: 0 0 14px;
+  }
+  li { margin-block-end: 6px; }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 10px; margin-block-end: 24px; }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--step-bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .step-num {
+    width: 26px; height: 26px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { font-size: 14px; color: var(--fg-muted); line-height: 1.5; min-width: 0; }
+  .step-text strong { color: var(--fg); }
+
+  /* CTA button */
+  .cta-block { margin-block: 8px 24px; }
+  .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 13px 22px;
+    border-radius: 10px;
+    transition: background 0.15s;
+  }
+  .btn-delete:hover { background: var(--accent-hover); }
+
+  /* Email display */
+  .email-chip {
+    display: inline-block;
+    font-family: 'Inter', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    word-break: break-all;
+  }
+
+  /* Warning box */
+  .warning-box {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--warn-fg);
+    margin-block-end: 24px;
+  }
+  .warning-box strong { color: var(--warn-fg); }
+
+  /* Contact card */
+  .contact-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: grid;
+    gap: 6px;
+    font-size: 13.5px;
+  }
+  .contact-row { display: flex; gap: 10px; color: var(--fg-muted); }
+  .contact-label { font-weight: 600; color: var(--fg); min-width: 80px; flex-shrink: 0; }
+
+  /* Footer */
+  .doc-footer {
+    margin-block-start: 44px;
+    padding-block-start: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11.5px;
+    color: var(--fg-light);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  strong { color: var(--fg); }
+
+  @media (max-width: 480px) {
+    .contact-row { flex-direction: column; gap: 2px; }
+    .contact-label { min-width: unset; }
+  }
+</style>
+
+<div class="doc">
+
+  <div class="app-identity">
+    <div class="app-icon">🏪</div>
+    <div class="app-identity-text">
+      <div class="app-name">Liquor Stock Manager</div>
+      <div class="app-dev">Developed by CraftX Design Labs</div>
+    </div>
+  </div>
+
+  <h1>Request Account Deletion</h1>
+  <p class="lead">If you no longer wish to use Liquor Stock Manager, you can request permanent deletion of your account and all associated personal data. You do not need to reinstall or access the mobile app to submit a deletion request.</p>
+
+  <hr>
+
+  <h2>How to Submit Your Request</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Send an email to <strong>craftxdesignlabs@gmail.com</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Use the subject line: <strong>LSM – Account Deletion Request</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Include the <strong>email address registered</strong> with your Liquor Stock Manager account</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">Our support team may contact you to <strong>verify your account ownership</strong> before processing</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-text">Once verified, your deletion request will be <strong>processed within 30 days</strong></div>
+    </div>
+  </div>
+
+  <div class="cta-block">
+    <a class="btn-delete" href="mailto:craftxdesignlabs@gmail.com?subject=LSM%20%E2%80%93%20Account%20Deletion%20Request">
+      ✉ Send Deletion Request
+    </a>
+  </div>
+
+  <hr>
+
+  <h2>What Data Will Be Deleted?</h2>
+
+  <div class="warning-box">
+    <strong>⚠ This action is permanent.</strong> Once your account is deleted, your data cannot be recovered.
+  </div>
+
+  <p>Following verification, we will delete your account and associated data, subject to applicable legal and regulatory requirements. This includes:</p>
+
+  <ul>
+    <li>Account and profile information</li>
+    <li>Authentication credentials and session data</li>
+    <li>Store membership and staff role assignments</li>
+    <li>Business records associated with your account (sales, expenses, invoices, stock movements, closing reports) where deletion is permitted</li>
+  </ul>
+
+  <hr>
+
+  <h2>Data Retention</h2>
+  <p>Certain records may need to be retained where required by applicable laws, regulatory obligations, security requirements, or legitimate fraud-prevention purposes. Any such retained information will be handled according to our <a href="#" style="color: var(--accent);">Privacy Policy</a> and applicable retention requirements.</p>
+
+  <hr>
+
+  <h2>Processing Time</h2>
+  <p>We will review and verify your request before processing deletion. We will communicate the expected completion timeframe and notify you when the request has been completed. Most requests are processed within 30 days of verification.</p>
+
+  <hr>
+
+  <h2>Need Assistance?</h2>
+  <p>For account deletion assistance or any privacy-related questions, contact us at:</p>
+
+  <div class="contact-card">
+    <div class="contact-row">
+      <span class="contact-label">Developer</span>
+      <span>CraftX Design Labs</span>
+    </div>
+    <div class="contact-row">
+      <span class="contact-label">Application</span>
+      <span>Liquor Stock Manager (LSM)</span>
+    </div>
+    <div class="contact-row">
+      <span class="contact-label">Email</span>
+      <span><span class="email-chip">craftxdesignlabs@gmail.com</span></span>
+    </div>
+    <div class="contact-row">
+      <span class="contact-label">Subject</span>
+      <span>LSM – Account Deletion Request</span>
+    </div>
+  </div>
+
+  <footer class="doc-footer">
+    <span>LSM — Liquor Stock Manager &nbsp;·&nbsp; CraftX Design Labs</span>
+    <span>com.CraftX.LiquorStockManager</span>
+  </footer>
+
+</div>
